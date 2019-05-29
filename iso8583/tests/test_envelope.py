@@ -2,7 +2,7 @@ from iso8583 import Envelope, VariableLengthField, FixedLengthField
 
 
 def test_bitmap():
-    envelope = Envelope('0200', secondary_bitmap=False, MAC=None)
+    envelope = Envelope('0200')
 
     field2 = VariableLengthField(2)
     envelope += field2
@@ -25,7 +25,7 @@ def test_bitmap():
 
 
 def test_add():
-    envelope = Envelope('0200', secondary_bitmap=False, MAC=None)
+    envelope = Envelope('0200')
 
     field2 = VariableLengthField(2)
     envelope += field2
@@ -38,7 +38,7 @@ def test_add():
 
 
 def test_getitem():
-    envelope = Envelope('0200', secondary_bitmap=False, MAC=None)
+    envelope = Envelope('0200')
 
     field1 = VariableLengthField(2, value=123)
     envelope += field1
@@ -46,7 +46,7 @@ def test_getitem():
 
 
 def test_delete():
-    envelope = Envelope('0200', secondary_bitmap=False, MAC=None)
+    envelope = Envelope('0200')
 
     field2 = VariableLengthField(2)
     envelope += field2
@@ -60,7 +60,7 @@ def test_str()
         '037\tan\t12\tempty\tRetrieval reference number',
     ])
 
-    envelope = Envelope('0200', secondary_bitmap=False, MAC=None)
+    envelope = Envelope('0200')
 
     field2 = VariableLengthField(2, value=1234567890123456)
     envelope += field2
@@ -72,7 +72,7 @@ def test_str()
 
 
 def test_envelope_dumps():
-    envelope = Envelope('0200', secondary_bitmap=False, MAC=None)
+    envelope = Envelope('0200')
 
     pan = VariableLengthField(2)
     pan.value = 123456789

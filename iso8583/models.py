@@ -1,4 +1,16 @@
 
+
+
+class Envelope:
+    def __init__(self, mti, secondary_bitmap=False)
+    def dumps(self):
+        raise NotImplementedError()
+
+    @classmethod
+    def loads(cls, message):
+        raise NotImplementedError()
+
+
 ISO8583_LAYOUT = {
     1:  ('b',   'fixed',    64,  'Second Bitmap'),
     2:  ('n',   'variable', 19,  'Primary account number (PAN)'),
