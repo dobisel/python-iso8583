@@ -2,20 +2,27 @@ import abc
 
 
 class Bitmap:
-    __map = None
+    _map = None
 
     def __init__(self, secondary=False):
-        self.__map = 0
+        self._map = 0
         self.has_secondary = secondary
         if secondary:
-            self.__map |= (1 << 127)
+            self._map |= (1 << 127)
 
     @property
     def size(self):
         return 128 if self.has_secondary else 64
 
     def __repr__(self):
-        return bin((1 << self.size) | self.__map)[3:]
+        return bin((1 << self.size) | self._map)[3:]
+
+    def set(self, index):
+        self._map |= 1 << (self.size - index)
+
+    def unset(self, index):
+        mask = ((1 << self.size) - 1) ^ (1 << (self.size - index))
+        self._map &= mask
 
 
 class Envelope:
