@@ -32,6 +32,10 @@ class Bitmap:
 
         return str(self) == other
 
+    def __contains__(self, index):
+        bit = 1 << (self.size - index)
+        return bit & self._map
+
     @classmethod
     def from_hexstring(cls, hexstring):
         v = binascii.unhexlify(hexstring[:16])

@@ -13,6 +13,9 @@ def test_bitmap():
     bitmap.set(7)
     assert repr(bitmap) == \
         '0100001100000000000000000000000000000000000000000000000000000000'
+    assert 2 in bitmap
+    assert 8 in bitmap
+    assert 7 in bitmap
 
     bitmap.unset(7)
     assert repr(bitmap) == \
