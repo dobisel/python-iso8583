@@ -1,67 +1,21 @@
 from iso8583.models import Envelope, Element, Bitmap
 
 
-def test_bitmap():
-    bitmap = Bitmap()
-    assert bitmap.size == 64
-
-    assert repr(bitmap) == \
-        '0000000000000000000000000000000000000000000000000000000000000000'
-
-    bitmap.set(2)
-    bitmap.set(8)
-    bitmap.set(7)
-    assert repr(bitmap) == \
-        '0100001100000000000000000000000000000000000000000000000000000000'
-
-    bitmap.unset(7)
-    assert repr(bitmap) == \
-        '0100000100000000000000000000000000000000000000000000000000000000'
-
-
-
-def test_bitmap_secondary():
-    bitmap = Bitmap(secondary=True)
-    assert bitmap.size == 128
-    assert repr(bitmap) == \
-        '1000000000000000000000000000000000000000000000000000000000000000' \
-        '0000000000000000000000000000000000000000000000000000000000000000'
-
-    bitmap.set(4)
-    bitmap.set(120)
-    assert repr(bitmap) == \
-        '1001000000000000000000000000000000000000000000000000000000000000' \
-        '0000000000000000000000000000000000000000000000000000000100000000'
-
-    bitmap.unset(120)
-    assert repr(bitmap) == \
-        '1001000000000000000000000000000000000000000000000000000000000000' \
-        '0000000000000000000000000000000000000000000000000000000000000000'
-
-    bitmap.set(121)
-    bitmap.unset(4)
-    assert repr(bitmap) == \
-        '1000000000000000000000000000000000000000000000000000000000000000' \
-        '0000000000000000000000000000000000000000000000000000000010000000'
-
-
-"""
-def test_envelop_bitmap():
+def test_envelop_repr():
     envelope = Envelope('0200')
+    assert isinstance(envelope.bitmap, Bitmap)
 
     envelope.append_element(2)
     envelope.append_element(20)
     envelope.append_element(37)
     envelope.append_element(40)
 
-    assert bin(envelope.bitmap) == bin(
-        0b0100000000000000000100000000000000001000000000010000000000000000
-    )
-
     assert repr(envelope) == \
-        '<ISO8583 01000000000000000001000000000000000010000000000100000000'\
+        '<ISO8583 01000000000000000001000000000000000010010000000000000000'\
         '00000000 />'
 
+
+"""
 def test_add():
     envelope = Envelope('0200')
 

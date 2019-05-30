@@ -51,13 +51,17 @@ class Envelope:
 
     def append(self, element):
         self.elements[element.index] = element
-        self.bitmap |= 1 << (self.bitmap_last - element.index)
+        self.bitmap.set(element.index)
 
     def append_element(self, index, value=None):
         self.append(Element.create(index, value))
 
-    def remove(self, element):
-        del self.elements[element.index]
+    def remove(self, index):
+        self.bitmap.unset(index)
+        del self.elements[index]
+
+    def __repr__(self):
+        return f'<ISO8583 {self.bitmap} />'
 
     def dumps(self):
         raise NotImplementedError()
