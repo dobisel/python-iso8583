@@ -15,8 +15,7 @@ with open(join(os.path.dirname(__file__), 'iso8583', '__init__.py')) as v_file:
 setup(
     name='iso8583',
     version=package_version,
-    :qa
-    author='Mohammad sheikhian',
+    author='Vahid Mardani',
     description='Python library implementing the ISO-8583 banking protocol',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',  # This is important!

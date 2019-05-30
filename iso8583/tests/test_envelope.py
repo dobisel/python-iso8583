@@ -1,28 +1,33 @@
-from iso8583 import Envelope, VariableLengthField, FixedLengthField
+from iso8583.models import Envelope, Element, Bitmap
 
 
 def test_bitmap():
+    bitmap = Bitmap()
+
+    assert repr(bitmap) == \
+        '0000000000000000000000000000000000000000000000000000000000000000'
+
+    assert repr(Bitmap(secondary=True)) == \
+        '1000000000000000000000000000000000000000000000000000000000000000' \
+        '0000000000000000000000000000000000000000000000000000000000000000'
+
+
+"""
+def test_envelop_bitmap():
     envelope = Envelope('0200')
 
-    field2 = VariableLengthField(2)
-    envelope += field2
+    envelope.append_element(2)
+    envelope.append_element(20)
+    envelope.append_element(37)
+    envelope.append_element(40)
 
-    field20 = VariableLengthField(20)
-    envelope += field20
-
-    field37 = FixedLengthField(37)
-    envelope += field37
-
-    field48 = VariableLengthField(48)
-    envelope += field48
-
-    assert envelope.bitmap == \
+    assert bin(envelope.bitmap) == bin(
         0b0100000000000000000100000000000000001000000000010000000000000000
+    )
 
     assert repr(envelope) == \
         '<ISO8583 01000000000000000001000000000000000010000000000100000000'\
         '00000000 />'
-
 
 def test_add():
     envelope = Envelope('0200')
@@ -107,4 +112,4 @@ def test_envelope_loads():
     assert envelope[4].value = 123456789012
     assert envelope[37].value = 'abc123456789'
     assert envelope[48].value = '123456abc'
-
+"""

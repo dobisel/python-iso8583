@@ -1,8 +1,57 @@
+import abc
 
+
+class Bitmap:
+    __map = None
+
+    def __init__(self, secondary=False):
+        self.__map = 0
+        self.has_secondary = secondary
+        if secondary:
+            self.__map |= (1 << 127)
+
+    @property
+    def size(self):
+        return 128 if self.has_secondary else 64
+
+    def __repr__(self):
+        return bin((1 << self.size) | self.__map)[3:]
 
 
 class Envelope:
-    def __init__(self, mti, secondary_bitmap=False)
+    bitmap = None
+    mti = None
+    elements = None
+
+    def __init__(self, mti, secondary_bitmap=False, tertiary_bitmap=False):
+        self.mti = mti
+        self.elements = {}
+        self.bitmap = Bitmap(0b0)
+
+        if secondary_bitmap:
+            self.secondary_bitmap = 0b0
+            self.bitmap |= 1 << 127
+        else:
+            self.secondary_bitmap = None
+
+    @property
+    def bitmap_size(self):
+        return 128 if self.secondary_bitmap else 64
+
+    @property
+    def bitmap_last(self):
+        return self.bitmap_size - 1
+
+    def append(self, element):
+        self.elements[element.index] = element
+        self.bitmap |= 1 << (self.bitmap_last - element.index)
+
+    def append_element(self, index, value=None):
+        self.append(Element.create(index, value))
+
+    def remove(self, element):
+        del self.elements[element.index]
+
     def dumps(self):
         raise NotImplementedError()
 
@@ -11,7 +60,36 @@ class Envelope:
         raise NotImplementedError()
 
 
+class Element(metaclass=abc.ABCMeta):
+    def __init__(self, index, kind, size, title, value=None):
+        self.index = index
+        self.kind = kind
+        self.size = size
+        self.title = title
+        self.value = value
+
+    @classmethod
+    def create(cls, index, value=None):
+        if index not in ISO8583_LAYOUT:
+            raise ValueError(f'Invalid element index: {index}')
+
+        kind, storage, size, title = ISO8583_LAYOUT[index]
+        type_ = FixedLengthElement if storage == 'fixed' \
+            else VariableLengthElement
+
+        return type_(index, kind, size, title, value)
+
+
+class VariableLengthElement(Element):
+    pass
+
+
+class  FixedLengthElement(Element):
+    pass
+
+
 ISO8583_LAYOUT = {
+    0:  None,  # Reserved for bitmap
     1:  ('b',   'fixed',    64,  'Second Bitmap'),
     2:  ('n',   'variable', 19,  'Primary account number (PAN)'),
     3:  ('n',   'fixed',    6,   'Processing code'),
