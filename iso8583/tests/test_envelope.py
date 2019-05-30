@@ -4,6 +4,9 @@ from iso8583.models import Envelope, Element, Bitmap
 def test_envelop_repr():
     envelope = Envelope('0200')
     assert isinstance(envelope.bitmap, Bitmap)
+    assert repr(envelope) == \
+        '<ISO8583 00000000000000000000000000000000000000000000000000000000'\
+        '00000000 />'
 
     envelope.append_element(2)
     envelope.append_element(20)
