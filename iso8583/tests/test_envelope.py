@@ -36,12 +36,28 @@ def test_envelope_append():
     envelope.unset(20)
     assert 20 not in envelope
 
+
+def test_envelope_load():
+    sample = \
+        b'027111006030050008E100011662802314007513' \
+        b'5966000076242719052313153821140121124410' \
+        b'191431376242701111102000001111102   65\xc8\xc7' \
+        b'\xe4\xdf \xe3\xd3\xdf\xe4             \xca\xe5' \
+        b'\xd1\xc7\xe4        THRIR00' \
+        b'00011234567890070212290073P13006762427CI' \
+        b'F012111001209483PHN01109121902288TKT003S' \
+        b'FTTOK003000TKR0020272CCB6661787BFE6'
+
+    envelope = Envelope.loads(sample)
+    assert envelope.mti == 1100
+    assert envelope.bitmap == 0x6030050008E10001
+
+
+
 """
 def test_getitem():
     envelope = Envelope('0200')
-
-    field1 = VariableLengthField(2, value=123)
-    envelope += field1
+    envelope.set(
     assert envelope[1] == field1
 
 

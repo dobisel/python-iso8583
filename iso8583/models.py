@@ -1,18 +1,20 @@
 import abc
+import struct
+import binascii
 
 
 class Bitmap:
     _map = None
 
-    def __init__(self, secondary=False):
-        self._map = 0
-        self.has_secondary = secondary
+    def __init__(self, value=0, *, secondary=False):
+        self._map = value
+        self.secondary = secondary
         if secondary:
             self._map |= (1 << 127)
 
     @property
     def size(self):
-        return 128 if self.has_secondary else 64
+        return 128 if self.secondary else 64
 
     def __repr__(self):
         return bin((1 << self.size) | self._map)[3:]
@@ -24,22 +26,42 @@ class Bitmap:
         mask = ((1 << self.size) - 1) ^ (1 << (self.size - index))
         self._map &= mask
 
+    def __eq__(self, other):
+        if isinstance (other, int):
+            return self._map == other
+
+        return str(self) == other
+
+    @classmethod
+    def from_hexstring(cls, hexstring):
+        v = binascii.unhexlify(hexstring[:16])
+        secondary = v[0] & (1 << 7)
+        v = struct.unpack('!Q', v)[0]
+        if secondary:
+            v <<= 64
+            v |= struct.unpack('!Q', hexstring[16:32])
+
+        return cls(v, secondary=secondary)
+
 
 class Envelope:
     bitmap = None
     mti = None
     elements = None
 
-    def __init__(self, mti, secondary_bitmap=False, tertiary_bitmap=False):
+    def __init__(self, mti, secondary_bitmap=False, bitmap=0):
         self.mti = mti
         self.elements = {}
-        self.bitmap = Bitmap(0b0)
-
-        if secondary_bitmap:
-            self.secondary_bitmap = 0b0
-            self.bitmap |= 1 << 127
+        if isinstance(bitmap, Bitmap):
+            self.bitmap = bitmap
         else:
-            self.secondary_bitmap = None
+            self.bitmap = Bitmap(bitmap)
+
+            if secondary_bitmap:
+                self.secondary_bitmap = 0b0
+                self.bitmap |= 1 << 127
+            else:
+                self.secondary_bitmap = None
 
     @property
     def bitmap_size(self):
@@ -79,13 +101,23 @@ class Envelope:
 
             yield e
 
-    def dumps(self):
-        raise NotImplementedError()
-
     @classmethod
     def loads(cls, message):
-        raise NotImplementedError()
+        # Length
+        length = int(message[:4])
+        assert length == len(message) - 4, 'Invalid length'
 
+        # MTI
+        mti = int(message[4:8])
+
+        # Bitmap
+        bitmap = Bitmap.from_hexstring(message[8:])
+        envelope = cls(mti, bitmap=bitmap)
+
+        return envelope
+
+    def dumps(self):
+        raise NotImplementedError()
 
 
 class Element(metaclass=abc.ABCMeta):
