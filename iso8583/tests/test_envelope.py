@@ -3,6 +3,7 @@ from iso8583.models import Envelope, Element, Bitmap
 
 def test_bitmap():
     bitmap = Bitmap()
+    assert bitmap.size == 64
 
     assert repr(bitmap) == \
         '0000000000000000000000000000000000000000000000000000000000000000'
@@ -21,6 +22,7 @@ def test_bitmap():
 
 def test_bitmap_secondary():
     bitmap = Bitmap(secondary=True)
+    assert bitmap.size == 128
     assert repr(bitmap) == \
         '1000000000000000000000000000000000000000000000000000000000000000' \
         '0000000000000000000000000000000000000000000000000000000000000000'
@@ -41,6 +43,7 @@ def test_bitmap_secondary():
     assert repr(bitmap) == \
         '1000000000000000000000000000000000000000000000000000000000000000' \
         '0000000000000000000000000000000000000000000000000000000010000000'
+
 
 """
 def test_envelop_bitmap():
