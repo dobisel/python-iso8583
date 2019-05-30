@@ -49,19 +49,35 @@ class Envelope:
     def bitmap_last(self):
         return self.bitmap_size - 1
 
-    def append(self, element):
+    def set_element(self, element):
         self.elements[element.index] = element
         self.bitmap.set(element.index)
 
-    def append_element(self, index, value=None):
-        self.append(Element.create(index, value))
+    def set(self, index, value=None):
+        self.set_element(Element.create(index, value))
 
-    def remove(self, index):
+    def unset(self, index):
         self.bitmap.unset(index)
         del self.elements[index]
 
     def __repr__(self):
         return f'<ISO8583 {self.bitmap} />'
+
+    def __contains__(self, element_or_index):
+        if isinstance(element_or_index, Element):
+            index = element_or_index.index
+        else:
+            index = element_or_index
+
+        return index in self.elements
+
+    def __iter__(self):
+        for i in range(1, self.size):
+            e = self.elements.get(i)
+            if e is None:
+                continue
+
+            yield e
 
     def dumps(self):
         raise NotImplementedError()
@@ -69,6 +85,7 @@ class Envelope:
     @classmethod
     def loads(cls, message):
         raise NotImplementedError()
+
 
 
 class Element(metaclass=abc.ABCMeta):

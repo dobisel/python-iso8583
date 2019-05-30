@@ -1,41 +1,42 @@
 from iso8583.models import Envelope, Element, Bitmap
 
 
-def test_envelop_repr():
+def test_envelope_repr():
     envelope = Envelope('0200')
     assert isinstance(envelope.bitmap, Bitmap)
     assert repr(envelope) == \
         '<ISO8583 00000000000000000000000000000000000000000000000000000000'\
         '00000000 />'
 
-    envelope.append_element(2)
-    envelope.append_element(20)
-    envelope.append_element(37)
-    envelope.append_element(40)
-
+    envelope.set(2)
+    envelope.set(20)
+    envelope.set(37)
+    envelope.set(40)
     assert repr(envelope) == \
         '<ISO8583 01000000000000000001000000000000000010010000000000000000'\
         '00000000 />'
 
-    envelope.remove(2)
+    envelope.unset(2)
     assert repr(envelope) == \
         '<ISO8583 00000000000000000001000000000000000010010000000000000000'\
         '00000000 />'
 
-"""
-def test_add():
+
+def test_envelope_append():
     envelope = Envelope('0200')
+    two = Element.create(2)
+    envelope.set_element(two)
+    envelope.set(20)
 
-    field2 = VariableLengthField(2)
-    envelope += field2
+    assert 2 in envelope
+    assert 20 in envelope
+    assert two in envelope
+    assert 30 not in envelope
 
-    field3 = FixedLengthField(3, value=123)
-    envelope += field3
+    envelope.unset(20)
+    assert 20 not in envelope
 
-    assert field2 in envelope
-    assert field3 in envelope
-
-
+"""
 def test_getitem():
     envelope = Envelope('0200')
 
