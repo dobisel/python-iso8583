@@ -16,6 +16,7 @@ def test_bitmap():
     assert 2 in bitmap
     assert 8 in bitmap
     assert 7 in bitmap
+    assert 6 not in bitmap
 
     bitmap.unset(7)
     assert repr(bitmap) == \
