@@ -12,6 +12,11 @@ with open(join(os.path.dirname(__file__), 'iso8583', '__init__.py')) as v_file:
         .group(1)
 
 
+dependencies = [
+    'pycryptodome'
+]
+
+
 setup(
     name='iso8583',
     version=package_version,
@@ -21,6 +26,7 @@ setup(
     long_description_content_type='text/markdown',  # This is important!
     packages=find_packages(),
     license='MIT',
+    install_requires=dependencies,
     classifiers=[
         'Environment :: Console',
         'Intended Audience :: Developers',
