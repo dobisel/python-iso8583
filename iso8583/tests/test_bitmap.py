@@ -53,3 +53,4 @@ def test_bitmap_from_hexstring():
     assert repr(bitmap) == \
 	    '0110000000110000000001010000000000001000111000010000000000000001'
 
+    assert bitmap.to_hexstring() == b'6030050008E10001'

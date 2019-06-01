@@ -27,8 +27,8 @@ def test_envelope_load_dump():
     assert envelope.mti == 1100
     assert envelope.bitmap == 0x6030050008E10001
 
-#    dumped = envelope.dump()
-#    assert dumped == SAMPLE
+    dumped = envelope.dump()
+    assert dumped == SAMPLE
 
 
 SAMPLE = \

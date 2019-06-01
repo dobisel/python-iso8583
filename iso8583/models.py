@@ -56,6 +56,14 @@ class Bitmap:
             if i in self:
                 yield i
 
+    def to_hexstring(self):
+        primary = (self._map >> 8) if self.secondary else self._map
+        result = binascii.hexlify(struct.pack('!Q', self._map))
+        if self.secondary:
+            result += struct.pack('!Q', ((1 << 8) - 1), self._map)
+
+        return result.upper()
+
 
 class Envelope:
     bitmap = None
@@ -123,7 +131,12 @@ class Envelope:
         return envelope
 
     def dumps(self):
-        raise NotImplementedError()
+        body = []
+        for i in self.bitmap:
+            alements.append(self.elements[i].dump())
+
+        body = b''.join(body)
+        return b'{length}{self.mti}{self.bitmap}{body}{mac}'
 
 
 class Element(metaclass=abc.ABCMeta):
