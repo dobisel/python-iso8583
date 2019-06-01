@@ -1,0 +1,25 @@
+env:
+  global:
+    - ENCRYPTION_LABEL: c602e3be279e
+    - COMMIT_AUTHOR_EMAIL: vahid@dobisel.com
+
+language: python
+
+python:
+  - 3.6
+  - nightly
+
+branches:
+  only:
+  - master
+  - nightly
+  - /^(release\/)?v([1-9]\d*!)?(0|[1-9]\d*)(\.(0|[1-9]\d*))*((a|b|rc)(0|[1-9]\d*))?(\.post(0|[1-9]\d*))?(\.dev(0|[1-9]\d*))?$/
+
+before_install:
+  - pip install -U pip setuptools wheel
+  - pip install -r requirements-dev.txt
+
+install: pip install -ve .
+script: py.test --cov=iso8583 iso8583/tests
+after_success: if [[ $TRAVIS_PYTHON_VERSION == '3.6' ]]; then travis_retry coveralls ; fi
+
