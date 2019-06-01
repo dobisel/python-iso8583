@@ -13,7 +13,7 @@ with open(join(os.path.dirname(__file__), 'iso8583', '__init__.py')) as v_file:
 
 
 dependencies = [
-    'pycryptodome'
+    'pycrypto'
 ]
 
 

@@ -24,16 +24,16 @@ def iso9797_mac(binary, secret):
             block = strxor(block, first)
 
         # Result is ciphered with first key
-        firstcipher = DES.new(firstkey, DES.MODE_CBC, iv=IV)
+        firstcipher = DES.new(firstkey, DES.MODE_CBC, IV)
         first = firstcipher.encrypt(block)
 
     # To this last result a decryption is applied with the second key
     # (nothing coherent is obtained).
-    secondcipher = DES.new(secondkey, DES.MODE_CBC, iv=IV)
+    secondcipher = DES.new(secondkey, DES.MODE_CBC, IV)
     second = secondcipher.decrypt(first)
 
     # Finally encrypt with K key. The result is the MAC.
-    thirdcipher = DES.new(firstkey, DES.MODE_CBC, iv=IV)
+    thirdcipher = DES.new(firstkey, DES.MODE_CBC, IV)
     mac = thirdcipher.encrypt(second)
     return mac
 
