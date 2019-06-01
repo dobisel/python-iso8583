@@ -2,6 +2,8 @@ import abc
 import struct
 import binascii
 
+from .cryptohelpers import iso9797_mac
+
 
 class Bitmap:
     _map = None
@@ -70,7 +72,8 @@ class Envelope:
     mti = None
     elements = None
 
-    def __init__(self, mti, secondary_bitmap=False, bitmap=0):
+    def __init__(self, mti, mackey=None, secondary_bitmap=False, bitmap=0):
+        self.mackey = mackey
         self.mti = mti
         self.elements = {}
         if isinstance(bitmap, Bitmap):
@@ -108,8 +111,11 @@ class Envelope:
 
             yield e
 
+    def __getitem__(self, i):
+        return self.elements[i]
+
     @classmethod
-    def loads(cls, message):
+    def loads(cls, message, mackey):
         # Length
         length = int(message[:4])
         assert length == len(message) - 4, 'Invalid length'
@@ -117,10 +123,9 @@ class Envelope:
         # MTI
         mti = int(message[4:8])
 
-        envelope = cls(mti)
-
         # Bitmap
         bitmap = Bitmap.from_hexstring(message[8:])
+        envelope = cls(mti, mackey=mackey, secondary_bitmap=bitmap.secondary)
         cursor = (bitmap.size // 8) * 2 + 8
         for i in bitmap:
             e = Element.create(i)
@@ -128,15 +133,32 @@ class Envelope:
             envelope.set_element(e)
 
         assert bitmap == envelope.bitmap
+        mac = envelope[128 if bitmap.secondary else 64].value
+        calculated_mac = iso9797_mac(message[4:-16], mackey)
+        assert mac == calculated_mac
         return envelope
 
     def dumps(self):
-        body = []
-        for i in self.bitmap:
-            alements.append(self.elements[i].dump())
+        ignore = []
+        if self.bitmap.secondary:
+            ignore.append(128)
+        else:
+            ignore.append(64)
 
-        body = b''.join(body)
-        return b'{length}{self.mti}{self.bitmap}{body}{mac}'
+        parts = []
+        for i in self.bitmap:
+            if i in ignore:
+                continue
+            parts.append(self.elements[i].dumps())
+
+        body = b'%04d%s%s' % (
+            self.mti,
+            self.bitmap.to_hexstring(),
+            b''.join(parts)
+        )
+        mac = iso9797_mac(body, self.mackey)
+        mac = binascii.hexlify(mac).upper()
+        return b'%04d%s%s' % (len(body) + 16, body, mac)
 
 
 class Element(metaclass=abc.ABCMeta):
@@ -160,15 +182,36 @@ class Element(metaclass=abc.ABCMeta):
 
     def _decode_value(self, b):
         if self.kind in ('a', 'n', 's', 'an', 'as', 'ns', 'ans'):
-            return b
+            self.value = b
 
         elif self.kind == 'b':
-            return binascii.unhexlify(b)
+            self.value = binascii.unhexlify(b)
 
-        raise TypeError(f'Invalid type: {self.kind}')
+        else:
+            raise TypeError(f'Invalid type: {self.kind}')
+
+    def _encode_value(self):
+        if not self.value:
+            return b''
+
+        result = None
+        if self.kind in ('a', 'n', 's', 'an', 'as', 'ns', 'ans'):
+            result = self.value
+
+        elif self.kind == 'b':
+            result = binascii.hexlify(self.value)
+
+        else:
+            raise TypeError(f'Invalid type: {self.kind}')
+
+        return result
 
     @abc.abstractmethod
     def parse(self, binary):
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def dumps(self, binary):
         raise NotImplementedError()
 
 
@@ -180,14 +223,24 @@ class VariableLengthElement(Element):
     def parse(self, binary):
         length = int(binary[:self.header_size])
         blob = binary[self.header_size:self.header_size+length]
-        self.value = self._decode_value(blob)
+        self._decode_value(blob)
         return self.header_size + length
+
+    def dumps(self):
+        value = self._encode_value()
+        format_ = b'%%0%dd%%s' % self.header_size
+        return format_ % (len(value), value)
 
 
 class  FixedLengthElement(Element):
     def parse(self, binary):
-        self.value = self._decode_value(binary[:self.size])
+        self._decode_value(binary[:self.size])
         return self.size
+
+    def dumps(self):
+        value = self._encode_value()
+        pad = self.size - len(value)
+        return value + b' ' * pad
 
 
 ISO8583_LAYOUT = {
