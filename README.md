@@ -1,4 +1,5 @@
 # python-8583
+Python library implementing the ISO-8583 banking protocol
 
 branches
 ---
