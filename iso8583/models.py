@@ -253,7 +253,7 @@ ISO8583_LAYOUT = {
     22: ('an',  'fixed',     12,  'Point of service Condition'),
     24: ('n',   'fixed',     3,   'Point of service function code'),
     37: ('n',   'fixed',     12,  'Retrieval reference number'),
-    39: ('n',   'fixed',     2,   'Response code'),
+    39: ('n',   'fixed',     3,   'Response code'),
     41: ('ans', 'fixed',     8,   'Card acceptor terminal identification'),
     42: ('n',   'fixed',     15,  'Card acceptor identification code'),
     43: ('ans', 'variable',  99,  'Card acceptor name/location (1-23 street address, 24-36 city, 37-38 state, 39-40 country)'),
