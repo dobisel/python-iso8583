@@ -34,6 +34,13 @@ def test_envelope_load_dump():
     assert dumped == SAMPLE
 
 
+def test_envelope_dumps():
+    mac_key = binascii.unhexlify(MAC_KEY)
+    envelope = Envelope('0200', mac_key)
+    envelope.set(24, b'222')
+    assert b'00390200000001000000000122267863F25F30A06B7' == envelope.dumps()
+
+
 MAC_KEY = b'1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C'
 SAMPLE = \
     b'027111006030050008E100011662802314007513' \

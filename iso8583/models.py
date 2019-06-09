@@ -151,8 +151,9 @@ class Envelope:
                 continue
             parts.append(self.elements[i].dumps())
 
+        self.bitmap.set(ignore[0])
         body = b'%04d%s%s' % (
-            self.mti,
+            int(self.mti),
             self.bitmap.to_hexstring(),
             b''.join(parts)
         )
